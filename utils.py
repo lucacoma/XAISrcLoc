@@ -1,4 +1,5 @@
 import numpy as np
+
 def nextpow2(N):
     """ Function for finding the next power of 2 """
     n = 1
@@ -48,24 +49,44 @@ def denormalize(input_tensor, min_src, max_src):
     input_tensor = input_tensor * (max_src-min_src) + min_src
     return input_tensor
 
-
-def compute_correlation_time(signal):
+def autocorrelation(signal):
     # Compute the autocorrelation function
-
-    autocorr = np.fft.ifftshift(np.fft.ifft(np.fft.fft(signal)*np.conj(np.fft.fft(signal))))
+    autocorr = np.real(np.fft.ifftshift(np.fft.ifft(np.fft.fft(signal) * np.conj(np.fft.fft(signal)))))
 
     # Normalize the autocorrelation function
-    normalized_autocorr = autocorr / np.max(autocorr)
+    autocorr /= np.max(autocorr)
 
-    # Find the -3 dB points
-    half_max = 0.5
-    indices = np.where(normalized_autocorr >= half_max)[0]
-    left_3db, right_3db = indices[0], indices[-1]
+    return autocorr
 
-    # Compute the correlation time as the width between the -3 dB points
-    correlation_time_samples = right_3db - left_3db
+
+def main_lobe_width(autocorr):
+    # Find the index of the maximum value in the autocorrelation
+    peak_index = np.argmax(np.real(autocorr))
+
+    # Find the first zero-crossings on both sides of the peak
+    left_zero_crossing = np.where(autocorr[:peak_index] < 1/np.sqrt(2))[0][-1]
+    right_zero_crossing = np.where(autocorr[peak_index:] <  1/np.sqrt(2))[0][0] + peak_index
+
+    # Compute the main lobe width
+    width = right_zero_crossing - left_zero_crossing
+
+    return width
+
+def compute_correlation_time(signal):
+    # Compute the signal correlation time as defined in
+    # B. Champagne, S. Bedard and A. Stephenne,
+    # "Performance of time-delay estimation in the presence of room reverberation,"
+    # in IEEE Transactions on Speech and Audio Processing, vol. 4, no. 2, pp. 148-152,
+    # March 1996, doi: 10.1109/89.486067.
+
+    # Compute autocorrelation
+    autocorr = autocorrelation(signal)
+
+    # Compute and print the main lobe width
+    correlation_time_samples = main_lobe_width(autocorr)
 
     return correlation_time_samples
+
 
 def add_white_gaussian_noise(signal, snr_dB, ref_mic=0):
     # Calculate the signal power
