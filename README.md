@@ -1,4 +1,4 @@
-# A deep learning-based pressure matching approach to soundfield synthesis
+# Interpreting End-to-End Deep Neural Networks Models for Acoustic Source Localization using Layer-wise Relevance Propagation
 
 Code repository for the paper _Interpreting End-to-End Deep Neural Networks Models for Acoustic Source Localization using Layer-wise Relevance Propagation_
 [[1]](#references). 
