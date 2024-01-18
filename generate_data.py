@@ -8,11 +8,10 @@ import utils
 gpuRIR.activateMixedPrecision(False)
 gpuRIR.activateLUT(True)
 from tqdm import tqdm
-from params import window_size,corpus, idx_tracks_train,idx_tracks_val, src_pos_train, src_pos_val,src_pos_test,idx_tracks_test,height_mic, min_src, max_src
+from params import window_size,corpus, idx_tracks_train,idx_tracks_val, src_pos_train, src_pos_val,src_pos_test,idx_tracks_test
 from params import mics, n_mic
 
 parser = argparse.ArgumentParser(description='Endtoend data generation')
-#parser.add_argument('--data_split', type=str, help='data_split (train, val, test)', default='train')
 parser.add_argument('--T60', type=float, help='T60', default=0.1)
 parser.add_argument('--SNR', type=int, help='SNR', default=40)
 parser.add_argument('--gpu', type=str, help='gpu', default='0')
@@ -31,11 +30,7 @@ import torch
 room_dim = [3.6, 8.2, 2.4]  # meters
 e_absorption, max_order = pra.inverse_sabine(T60, room_dim)
 
-# Number of examples: 1131 (US bdl)
-N = len(corpus)
-
 for data_split in ['train','val','test']:
-
     print('Computing '+str(data_split) + ' data')
 
     # Windowing: 80ms,160ms,320ms -> 1280,2560,5120 samples

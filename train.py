@@ -23,9 +23,6 @@ T60 = args.T60
 SNR = args.SNR
 
 
-
-
-
 class EndToEndDataset(torch.utils.data.Dataset):
     def __init__(self, data_path, window_size):
         self.data_path = data_path
@@ -121,8 +118,6 @@ def main():
 
     train_dataloader = torch.utils.data.DataLoader(training_data, batch_size=batch_size, shuffle=True,num_workers=4)
     val_dataloader = torch.utils.data.DataLoader(val_data, batch_size=batch_size, shuffle=True,num_workers=4)
-
-    #win_sig, src_loc = next(iter(train_dataloader))
 
     model = model.cuda()
     early_stop_patience = 200

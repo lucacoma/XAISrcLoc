@@ -6,11 +6,10 @@ import utils
 import argparse
 from network_lib import EndToEndLocModel
 from tqdm import tqdm
-from params import fs, window_size,  mics,c
+from params import fs, window_size,  mics,c, composite
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
 from zennit.attribution import Gradient
-from zennit.composites import EpsilonGammaBox
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 plt.rcParams.update({
@@ -56,13 +55,9 @@ for n_s in tqdm(range(len(files))):
     N_wins = win_sig.shape[-1]
     sources_win = []
 
-    composite = EpsilonGammaBox(low=win_sig.min(), high=win_sig.max())
     with Gradient(model=model, composite=composite) as attributor:
         out, relevance = attributor(torch.permute(torch.Tensor(win_sig),(2,0,1)),
                                     torch.Tensor(data_structure['src_pos']).repeat(win_sig.shape[-1],1))
-
-    #relevance = torch.permute(relevance,(1,2,0)).detach().numpy() # put relevance in the same dim as win_sig
-
 
     # GT GCC
     gt_sig_1 = np.zeros(window_size)
@@ -80,7 +75,6 @@ for n_s in tqdm(range(len(files))):
         _, gcc_sig = utils.gcc_phat(win_sig[idx_m2,:,n_w], win_sig[idx_m1,:,n_w], fs=fs)
 
         # LRP GCC
-        #_, gcc_lrp = utils.gcc_phat(win_sig[idx_m2,:,n_w]*relevance[idx_m2,:,n_w], win_sig[idx_m1,:,n_w]*relevance[idx_m1,:,n_w], fs=fs)
         _, gcc_lrp = utils.gcc_phat(relevance[n_w,idx_m2,:], relevance[n_w,idx_m1,:,], fs=fs)
 
         # Cycle through windows
@@ -88,8 +82,6 @@ for n_s in tqdm(range(len(files))):
         time_delay_sig.append(np.argmax(gcc_sig)-(len(gcc_sig)/2))
         time_delay_gt.append(np.argmax(gcc_gt)-(len(gcc_gt)/2))
         thresh.append(anomaly_thresh)
-
-
 
 td_error_relevance = np.abs(np.array(time_delay_gt) - np.array(time_delay_lrp))
 td_error_sig = np.abs(np.array(time_delay_gt) - np.array(time_delay_sig))
@@ -103,7 +95,7 @@ print(str('MAE signal: '+str(MAE_sig)+' samples'))
 print(str('MAE relevance: '+str(MAE_relevance)+' samples'))
 print(str('MAE anomalies signal: '+str(anomalies_sig)+' %'))
 print(str('MAE anomalies relevance: '+str(anomalies_relevance)+' %'))
-print(str(anomalies_sig)+'&'+str(MAE_sig)+'&'+str(anomalies_relevance)+'&'+str(MAE_relevance))
+print(str(anomalies_sig*100)+'&'+str(MAE_sig)+'&'+str(anomalies_relevance*100)+'&'+str(MAE_relevance))
 print('')
 
 

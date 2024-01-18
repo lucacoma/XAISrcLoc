@@ -5,12 +5,10 @@ import copy
 import argparse
 from network_lib import EndToEndLocModel
 from tqdm import tqdm
-from params import  window_size, n_mic
+from params import  window_size, n_mic, composite
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
 from zennit.attribution import Gradient
-from zennit.composites import EpsilonGammaBox
-
 results_path = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/results_perturbation'
 parser = argparse.ArgumentParser(description='Endtoend training')
 parser.add_argument('--gpu', type=str, help='gpu', default='0')
@@ -77,7 +75,7 @@ for p in tqdm(range(len(percentages))):
         win_sig = data_structure['win_sig']
         N_wins = win_sig.shape[-1]
 
-        composite = EpsilonGammaBox(low=win_sig.min(), high=win_sig.max())
+        #composite = EpsilonPlus()
         with Gradient(model=model, composite=composite) as attributor:
             out, relevance = attributor(torch.permute(torch.Tensor(win_sig),(2,0,1)).to(device),
                                         torch.Tensor(data_structure['src_pos']).repeat(win_sig.shape[-1],1).to(device))
