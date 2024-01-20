@@ -3,6 +3,12 @@ import torch.nn as nn
 from params import n_mic, fc_size
 
 class EndToEndLocModel(nn.Module):
+    """
+    Implementation of Vera-Diaz, Juan Manuel, Daniel Pizarro, and Javier Macias-Guarasa. 
+    "Towards end-to-end acoustic localization using deep learning: 
+    From audio signals to source position coordinates." Sensors 18.10 (2018): 3418.
+
+    """
     def __init__(self):
         super(EndToEndLocModel, self).__init__()
 

@@ -33,7 +33,6 @@ e_absorption, max_order = pra.inverse_sabine(T60, room_dim)
 for data_split in ['train','val','test']:
     print('Computing '+str(data_split) + ' data')
 
-    # Windowing: 80ms,160ms,320ms -> 1280,2560,5120 samples
     if data_split == 'train':
         sources_pos = src_pos_train
         corpus_idxs = idx_tracks_train
@@ -51,7 +50,7 @@ for data_split in ['train','val','test']:
         # Convert signal to float
         signal = signal / (np.max(np.abs(signal)))
 
-
+        # Compute Signal Correlation Time
         sig_corr_time = utils.compute_correlation_time(signal)
 
 
@@ -77,13 +76,13 @@ for data_split in ['train','val','test']:
         # AWGN
         noisy_signal_conv, noise = utils.add_white_gaussian_noise(signal_conv.detach().numpy(), SNR)
         noisy_signal_conv = torch.Tensor(noisy_signal_conv)
-        noisy_signal_conv  = noisy_signal_conv
 
+        # Split in windows
         N_wins = int(noisy_signal_conv.shape[-1]/window_size)
         frames = torch.reshape(noisy_signal_conv[:,:N_wins*window_size],(n_mic,N_wins,window_size))
         win_sig  = torch.permute(frames, (0,2,1))
 
-
+        # Save data
         if data_split =='train' or data_split == 'val':
             train_path = os.path.join(path,data_split)
             train_split_path = os.path.join(train_path, 'SNR_' + str(SNR) + '_T60_' + str(T60))
