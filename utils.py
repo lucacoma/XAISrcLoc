@@ -40,6 +40,10 @@ def normalize(input_tensor):
     min_val, max_val = np.min(input_tensor), np.max(input_tensor)
     return -1 +2*((input_tensor-min_val)/(max_val-min_val))
 
+def normalize_z(input_tensor):
+    return (input_tensor-np.mean(input_tensor))/np.std(input_tensor)
+
+
 def normalize_01(input_tensor):
     min_val, max_val = np.min(input_tensor), np.max(input_tensor)
     return ((input_tensor-min_val)/(max_val-min_val))

@@ -1,48 +1,11 @@
+"""
+Room and signal processing params
+"""
 import pyroomacoustics as pra
 import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from zennit.rules import Epsilon, ZPlus, ZBox, Norm, Pass, Flat, WSquare, Gamma
-from zennit.composites import NameMapComposite
 
-"""
-Composite for LRP
-N.B. Since the gradient is only overwritten by Rules, the gradient will be unchanged for layers without applicable rules. 
-If layers should only pass their received gradient/relevance on, the :py:class:`~zennit.rules.Pass` 
-rule should be used (which is done for all activations in all LRP composites,...) 
- the :py:class:`~zennit.rules.Norm` rule, which normalizes the gradient by output fraction, 
- is used for :py:class:`~zennit.layer.Sum` and :py:class:`~zennit.types.AvgPool` layers 
-
-cfr 
-https://github.com/chr5tphr/zennit/blob/60a2c088a29fb0a68ed63f596858d0b9becff374/docs/source/how-to/use-rules-composites-and-canonizers.rst#L357
-"""
-
-name_map = [(['conv1'], WSquare()),
-            (['conv2'], Gamma()),
-            (['conv3'], Gamma()),
-            (['conv4'], Gamma()),
-            (['conv5'], Gamma()),
-            (['pool1'], Norm()),
-            (['pool2'], Norm()),
-            (['pool3'], Norm()),
-            (['fc1'], Epsilon()),
-            (['fc2'], Epsilon()),
-            (['dr1'], Pass()),
-            (['activation1'], Pass()),
-            (['activation2'], Pass()),
-            (['activation3'], Pass()),
-            (['activation4'], Pass()),
-            (['activation5'], Pass()),
-            (['activation6'], Pass()),
-            ]
-
-composite = NameMapComposite(
-    name_map=name_map,
-)
-
-"""
-Room and signal processing params
-"""
 windows = [1280, 2560, 5120]
 window_size = 5120
 if window_size == 5120:
@@ -107,4 +70,5 @@ idx_tracks = rng.choice(np.arange(len(corpus)),size=src_pos_train.shape[0]+src_p
 idx_tracks_train=idx_tracks[:src_pos_train.shape[0]]
 idx_tracks_val=idx_tracks[src_pos_train.shape[0]:src_pos_train.shape[0]+src_pos_val.shape[0]]
 idx_tracks_test=idx_tracks[src_pos_train.shape[0]+src_pos_val.shape[0]:src_pos_train.shape[0]+src_pos_val.shape[0]+src_pos_test.shape[0]]
+
 
