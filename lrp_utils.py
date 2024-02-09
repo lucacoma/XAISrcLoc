@@ -219,5 +219,4 @@ class EpsilonPlusWsquare(SpecialFirstLayerMapComposite):
             (Convolution, WSquare(stabilizer=stabilizer, **rule_kwargs))
         ]
         super().__init__(layer_map=layer_map, first_map=first_map, canonizers=canonizers)
-from zennit.composites import EpsilonPlusFlat
 composite_sample_cnn = EpsilonPlusWsquare(canonizers=[SampleCNNCanonizer()])
