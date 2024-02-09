@@ -34,7 +34,7 @@ data_path = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/dataset2/test/S
 files = [os.path.join(data_path,path) for path in os.listdir(data_path)]
 
 # LOC-CNN
-saved_model_path ='/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/model_SNR_'+str(SNR)+'_T60_'+str(T60)+'.pth'
+saved_model_path ='/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/loccnn/model_SNR_'+str(SNR)+'_T60_'+str(T60)+'.pth'
 model_loc_cnn = EndToEndLocModel()
 model_loc_cnn.load_state_dict(torch.load(saved_model_path))
 model_loc_cnn.eval()

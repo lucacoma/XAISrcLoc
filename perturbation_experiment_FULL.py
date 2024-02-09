@@ -77,7 +77,7 @@ for p in tqdm(range(len(percentages))):
         files = [os.path.join(data_path, path) for path in os.listdir(data_path)]
 
         if args.model_name == 'loc_cnn':
-            saved_model_path = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/model_SNR_' + str(
+            saved_model_path = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/loccnn/model_SNR_' + str(
                 SNR) + '_T60_' + str(T60) + '.pth'
             model = EndToEndLocModel()
             model.load_state_dict(torch.load(saved_model_path))

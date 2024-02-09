@@ -96,7 +96,7 @@ def val_epoch(val_dataloader, model, device,loss_fn):
 
 
 def main():
-    saved_model_path='/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/model'+'_SNR_'+str(SNR)+'_T60_'+str(T60)+'.pth'
+    saved_model_path='/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/loccnn/model'+'_SNR_'+str(SNR)+'_T60_'+str(T60)+'.pth'
     model = network_lib.EndToEndLocModel()
     model = model.to(device)
     loss_fn = torch.nn.MSELoss()

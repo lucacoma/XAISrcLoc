@@ -1,35 +1,52 @@
-import os
-import torch
-import numpy as np
-import copy
 import argparse
-from network_lib import EndToEndLocModel
-from tqdm import tqdm
-from params import  window_size, n_mic, composite
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-print(f"Using {device} device")
-from zennit.attribution import Gradient
 results_path = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/results_perturbation'
 parser = argparse.ArgumentParser(description='Endtoend training')
 parser.add_argument('--gpu', type=str, help='gpu', default='0')
 parser.add_argument('--T60', type=float, help='T60', default=0.15)
 parser.add_argument('--SNR', type=int, help='SNR', default=25)
+parser.add_argument('--model_name', type=str, help='sample_cnn or loc_cnn', default="sample_cnn")
 args = parser.parse_args()
+import os
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+import os
+import torch
+import numpy as np
+import copy
+
+from network_lib import EndToEndLocModel, SampleCNNLoc
+from tqdm import tqdm
+from params import  window_size, n_mic, composite_loc_cnn, composite_sample_cnn
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+print(f"Using {device} device")
+from zennit.attribution import Gradient
 SNR=args.SNR
 T60 =args.T60
+model_name = args.model_name
 
 data_path = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/dataset2/test/SNR_'+str(SNR)+'_T60_'+str(T60)
 files = [os.path.join(data_path,path) for path in os.listdir(data_path)]
 
 percentages = [0,10,20,30,40,50,60,70]
 
-saved_model_path='/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/model_SNR_'+str(SNR)+'_T60_'+str(T60)+'.pth'
-model = EndToEndLocModel()
-model.load_state_dict(torch.load(saved_model_path))
-model = model.to(device)
-model.eval()
+if args.model_name=='loc_cnn':
+    saved_model_path='/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/loccnn/model_SNR_'+str(SNR)+'_T60_'+str(T60)+'.pth'
+    model = EndToEndLocModel()
+    model.load_state_dict(torch.load(saved_model_path))
+    model = model.to(device)
+    model.eval()
+    composite = composite_loc_cnn
+
+if args.model_name=='sample_cnn':
+    # Load network model
+    saved_model_path_sample_cnn = '/nas/home/lcomanducci/xai_src_loc/endtoend_src_loc2/models/samplecnn/model_SNR_' + str(
+        SNR) + '_T60_' + str(T60) + '.pth'
+    model = SampleCNNLoc()
+    model.load_state_dict(torch.load(saved_model_path_sample_cnn))
+    model = model.to(device)
+    model.eval()
+    composite = composite_sample_cnn
+
 
 
 def perturb_array(input_array,perc,mode,relevance=0):
@@ -69,13 +86,13 @@ for p in tqdm(range(len(percentages))):
     sources_gt = []
     N_sources = len(files)
 
-    for n_s in tqdm(range(N_sources)):
+    for n_s in tqdm(range(N_sources)): #N_sources
 
         data_structure = np.load(str(files[n_s]))
         win_sig = data_structure['win_sig']
         N_wins = win_sig.shape[-1]
 
-        #composite = EpsilonPlus()
+
         with Gradient(model=model, composite=composite) as attributor:
             out, relevance = attributor(torch.permute(torch.Tensor(win_sig),(2,0,1)).to(device),
                                         torch.Tensor(data_structure['src_pos']).repeat(win_sig.shape[-1],1).to(device))
@@ -108,7 +125,7 @@ for p in tqdm(range(len(percentages))):
     MAE_random[p] = np.mean(np.abs(np.array(sources_gt) - np.array(sources_est_random)))
     MAE_energy[p] = np.mean(np.abs(np.array(sources_gt) - np.array(sources_est_energy)))
 
-results_split_path = os.path.join(results_path, 'SNR_' + str(SNR) + '_T60_' + str(T60))
+results_split_path = os.path.join(results_path, model_name+'_SNR_' + str(SNR) + '_T60_' + str(T60))
 if not os.path.exists(results_path):
     os.makedirs(results_path)
 if not os.path.exists(results_split_path):
