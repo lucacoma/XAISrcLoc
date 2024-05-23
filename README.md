@@ -1,6 +1,6 @@
 # Interpreting End-to-End Deep Learning Models for Acoustic Source Localization using Layer-wise Relevance Propagation
 
-Code repository for the paper _Interpreting End-to-End Deep Neural Networks Models for Acoustic Source Localization using Layer-wise Relevance Propagation_
+Code repository for the paper _Interpreting End-to-End Deep Neural Networks Models for Acoustic Source Localization using Layer-wise Relevance Propagation, EUSIPCO 2024_
 [[1]](#references). 
 
 For any further info feel free to contact me at [luca.comanducci@polimi.it](luca.comanducci@polimi.it)
@@ -58,4 +58,4 @@ The jupyter notebooks _Input_visualization_paper.ipynb_ and _Plot_Perturbation.i
 N.B. pre-trained models used to compute the results shown in [[1]](#references) can be found in folder _models_
 
 # References
->[1] L.Comanducci, F.Antonacci, A.Sarti, Interpreting End-to-End Deep Learning Models for Acoustic Source Localization using Layer-wise Relevance Propagation
+>[1] L.Comanducci, F.Antonacci, A.Sarti, Interpreting End-to-End Deep Learning Models for Acoustic Source Localization using Layer-wise Relevance Propagation, accepted at EUSIPCO 2024
